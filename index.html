@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hangman Pro - Perfect Alignment</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-wrapper">
+        <header class="game-header">
+            <h1>HANGMAN <span>PRO</span></h1>
+        </header>
+
+        <main class="container">
+            <div class="top-controls">
+                <div class="select-wrapper">
+                    <label for="category-select">Field:</label>
+                    <select id="category-select">
+                        <option value="" disabled selected>-- Choose --</option>
+                    </select>
+                </div>
+                <div class="category-info">
+                    CATEGORY: <span id="category-name">--</span>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="hangman-draw">
+                    <div class="draw-container">
+                        <div class="the-draw"></div>
+                        <div class="the-stand"></div>
+                        <div class="the-hang"></div>
+                        <div class="man-container">
+                            <div class="the-head"></div>
+                            <div class="the-body"></div>
+                            <div class="the-hands"></div>
+                            <div class="the-legs"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="letters"></div>
+            </div>
+
+            <div class="word-section">
+                <div id="hint-display" class="hint-text">Select a field to start!</div>
+                <div class="letters-guess"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="game-popup" class="popup-overlay">
+        <div class="popup-content">
+            <h2 id="popup-title"></h2>
+            <p id="popup-message"></p>
+            <div class="popup-buttons">
+                <button id="play-again">PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
