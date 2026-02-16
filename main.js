@@ -4,6 +4,7 @@ let wrongAttempts = 0;
 const maxAttempts = 7;
 let score = 0;
 let highScore = localStorage.getItem("hangmanHighScore") || 0;
+let hintsUsed = 0; // عداد التلميحات للكلمة الواحدة
 
 // تحديث عرض الـ High Score عند التحميل
 document.getElementById("high-score").textContent = highScore;
@@ -29,18 +30,16 @@ const highScoreDisplay = document.getElementById("high-score");
 const alertPopup = document.getElementById("alert-popup");
 const closeAlert = document.getElementById("close-alert");
 
-// إغلاق نافذة الترحيب وتفعيل الأصوات (حل مشكلة الصوت في أول محاولة)
+// إغلاق نافذة الترحيب وتفعيل الأصوات
 startBtn.onclick = () => { 
     welcomePopup.style.display = "none";
-    
-    // فك قفل الأصوات عن طريق تشغيلها صامتة فور النقر
     [correctSnd, wrongSnd, winSnd, loseSnd].forEach(snd => {
         snd.muted = true;
         snd.play().then(() => {
             snd.pause();
             snd.currentTime = 0;
             snd.muted = false;
-        }).catch(e => console.log("Audio ready for interaction"));
+        }).catch(e => console.log("Audio ready"));
     });
 };
 
@@ -72,6 +71,7 @@ const startGame = () => {
     const selected = categorySelect.value;
     if (!selected) return;
 
+    hintsUsed = 0; // تصفير التلميحات
     skipBtn.style.display = "inline-block";
     hintBtn.style.display = "inline-block";
     
@@ -81,7 +81,9 @@ const startGame = () => {
     chosenWord = item.word.toLowerCase();
     wrongAttempts = 0;
     
+    // تصفير الرسم تماماً
     drawElement.className = "hangman-draw"; 
+    
     document.querySelectorAll(".letter-box").forEach(b => b.classList.remove("clicked"));
     document.getElementById("category-name").textContent = selected.toUpperCase();
     hintDisplay.innerHTML = `<span class="hint-text">HINT: ${item.hint.toUpperCase()}</span>`;
@@ -102,16 +104,19 @@ const startGame = () => {
 categorySelect.onchange = startGame;
 skipBtn.onclick = () => { if (categorySelect.value) startGame(); };
 
-// منطق زر التلميح
+// منطق زر التلميح (مرتين فقط)
 hintBtn.onclick = () => {
+    if (hintsUsed >= 2) {
+        alert("لقد استنفدت التلميحات المتاحة لهذه الكلمة!");
+        return;
+    }
     if (score < 30) {
-        alert("تحتاج إلى 30 نقطة على الأقل للحصول على تلميح!");
+        alert("تحتاج إلى 30 نقطة على الأقل!");
         return;
     }
 
     const guessSpans = document.querySelectorAll(".letters-guess span");
     let hiddenIndices = [];
-
     [...chosenWord].forEach((char, index) => {
         if (guessSpans[index].textContent === "" && char !== " ") {
             hiddenIndices.push(index);
@@ -120,29 +125,22 @@ hintBtn.onclick = () => {
 
     if (hiddenIndices.length > 0) {
         score -= 30;
+        hintsUsed++;
         updateScores();
-
         let randomIndex = hiddenIndices[Math.floor(Math.random() * hiddenIndices.length)];
         let revealedChar = chosenWord[randomIndex];
-
         [...chosenWord].forEach((l, i) => {
-            if (l === revealedChar) {
-                guessSpans[i].textContent = revealedChar;
-            }
+            if (l === revealedChar) guessSpans[i].textContent = revealedChar;
         });
-
         document.querySelectorAll(".letter-box").forEach(box => {
-            if (box.textContent.toLowerCase() === revealedChar) {
-                box.classList.add("clicked");
-            }
+            if (box.textContent.toLowerCase() === revealedChar) box.classList.add("clicked");
         });
-
         const isWin = [...guessSpans].every(s => s.textContent !== "" || s.classList.contains("has-space"));
         if (isWin) { launchConfetti(); showEnd(true); }
     }
 };
 
-// منطق الضغط على الحروف (مع إصلاح الصوت والاهتزاز)
+// منطق الضغط على الحروف
 document.addEventListener("click", (e) => {
     if (e.target.classList.contains("letter-box")) {
         if (!chosenWord) { alertPopup.style.display = "flex"; return; }
@@ -171,26 +169,13 @@ document.addEventListener("click", (e) => {
                 showEnd(true);
             }
         } else {
-            // تأثير الاهتزاز
             drawElement.classList.remove("shake");
             void drawElement.offsetWidth; 
             drawElement.classList.add("shake");
 
-            // تشغيل صوت الخطأ مع ضمان العمل من أول مرة
             wrongSnd.volume = 0.2;
             wrongSnd.currentTime = 0;
-            let playPromise = wrongSnd.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    setTimeout(() => { 
-                        if(!wrongSnd.paused) { 
-                            wrongSnd.pause(); 
-                            wrongSnd.currentTime = 0; 
-                        } 
-                    }, 500);
-                }).catch(() => {});
-            }
+            wrongSnd.play().catch(() => {});
 
             wrongAttempts++;
             drawElement.classList.add(`wrong-${wrongAttempts}`);
