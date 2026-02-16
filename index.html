@@ -24,13 +24,18 @@
                         <option value="" disabled selected>-- Choose --</option>
                     </select>
                 </div>
-            <div class="controls-group">
-                <button id="skip-word" style="display:none;">SKIP 🔄</button>
-                <button id="get-hint" style="display:none;">HINT 💡</button>
-            </div>
+                <div class="controls-group">
+                    <button id="skip-word" style="display:none;">SKIP 🔄</button>
+                    <button id="get-hint" style="display:none;">HINT 💡</button>
+                </div>
                 <div class="category-info">
                     CATEGORY: <span id="category-name">--</span>
                 </div>
+            </div>
+
+            <div class="word-section">
+                <div id="hint-display" class="hint-text">Select a field to start!</div>
+                <div class="letters-guess"></div>
             </div>
 
             <div class="game-area">
@@ -48,11 +53,6 @@
                     </div>
                 </div>
                 <div class="letters"></div>
-            </div>
-
-            <div class="word-section">
-                <div id="hint-display" class="hint-text">Select a field to start!</div>
-                <div class="letters-guess"></div>
             </div>
         </main>
     </div>
@@ -89,11 +89,12 @@
             </div>
         </div>
     </div>
+
     <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
-<audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
-<audio id="sound-wrong" src="https://www.myinstants.com/media/sounds/wrong-answer-sound-effect.mp3"></audio>
-<audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
-<audio id="sound-lose" src="https://www.myinstants.com/media/sounds/super-mario-death-sound-sound-effect.mp3"></audio>
+    <audio id="sound-wrong" src="https://www.myinstants.com/media/sounds/wrong-answer-sound-effect.mp3"></audio>
+    <audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+    <audio id="sound-lose" src="https://www.myinstants.com/media/sounds/super-mario-death-sound-sound-effect.mp3"></audio>
+    
     <script src="main.js"></script>
 </body>
 </html>
