@@ -5,14 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hangman Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="image/لقطة شاشة 2026-02-15 124143.png" type="image/x-icon">
 </head>
 <body>
     <div class="main-wrapper">
         <header class="game-header">
             <h1>HANGMAN <span>PRO</span></h1>
         </header>
-
+        <div class="score-container">
+            <div class="score-box">SCORE: <span id="current-score">0</span></div>
+            <div class="score-box">BEST: <span id="high-score">0</span></div>
+        </div>
         <main class="container">
             <div class="top-controls">
                 <div class="select-wrapper">
@@ -21,6 +23,10 @@
                         <option value="" disabled selected>-- Choose --</option>
                     </select>
                 </div>
+            <div class="controls-group">
+                <button id="skip-word" style="display:none;">SKIP 🔄</button>
+                <button id="get-hint" style="display:none;">HINT 💡</button>
+            </div>
                 <div class="category-info">
                     CATEGORY: <span id="category-name">--</span>
                 </div>
@@ -50,6 +56,29 @@
         </main>
     </div>
 
+    <div id="welcome-popup" class="popup-overlay" style="display: flex;">
+        <div class="popup-content">
+            <h2 style="color: var(--primary-blue);">WELCOME TO HANGMAN PRO! 👋</h2>
+            <div style="text-align: right; margin: 20px 0; line-height: 1.6; color: #333; direction: rtl;">
+                <p>✅ اختر **المجال** (Field) من القائمة للبدء.</p>
+                <p>✅ خمن الحروف قبل اكتمال **رسم الرجل**.</p>
+                <p>✅ يمكنك **تغيير الكلمة** فوراً إذا كانت صعبة.</p>
+            </div>
+            <div class="popup-buttons">
+                <button id="start-btn">START PLAYING 🚀</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-popup" class="popup-overlay">
+        <div class="popup-content" style="max-width: 300px; border-width: 3px;">
+            <p style="font-weight: bold; color: var(--accent-red); margin-bottom: 10px;">⚠️ Please choose a field first!</p>
+            <div class="popup-buttons">
+                <button id="close-alert" style="padding: 5px 15px; font-size: 14px;">OK</button>
+            </div>
+        </div>
+    </div>
+
     <div id="game-popup" class="popup-overlay">
         <div class="popup-content">
             <h2 id="popup-title"></h2>
@@ -59,6 +88,11 @@
             </div>
         </div>
     </div>
+    <audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+<audio id="sound-correct" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3"></audio>
+<audio id="sound-wrong" src="https://www.myinstants.com/media/sounds/wrong-answer-sound-effect.mp3"></audio>
+<audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+<audio id="sound-lose" src="https://www.myinstants.com/media/sounds/super-mario-death-sound-sound-effect.mp3"></audio>
     <script src="main.js"></script>
 </body>
 </html>
