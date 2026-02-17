@@ -28,15 +28,14 @@ body, html {
 .letters-guess span.has-space { border: none; width: 8px; background: none; }
 
 .game-area { flex: 1; display: flex; flex-direction: column; gap: 5px; min-height: 0; }
-.hangman-draw { flex: 0 0 130px; background: var(--bg-soft); border-radius: 15px; display: flex; justify-content: center; align-items: center; border: 1px solid #e2e8f0; position: relative; }
+.hangman-draw { flex: 0 0 130px; background: var(--bg-soft); border-radius: 15px; display: flex; justify-content: center; align-items: center; border: 1px solid #e2e8f0; position: relative; transition: 0.3s; }
 .draw-container { position: relative; width: 120px; height: 120px; }
 
-/* Keyboard */
 .letters { flex: 1; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 4px; overflow-y: auto; }
 .letter-box { width: 36px; height: 38px; background: white; color: var(--primary-blue); border: 2px solid var(--primary-blue); border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: 800; box-shadow: 0 3px 0 var(--primary-blue); transition: 0.1s; }
 .letter-box.clicked { background: var(--clicked-gray) !important; box-shadow: none !important; transform: translateY(3px); opacity: 0.6; pointer-events: none; }
 
-/* Drawing Parts */
+/* Drawing */
 .the-draw, .the-stand, .the-hang, .the-head, .the-body, .the-hands, .the-legs { display: none; background: #333; position: absolute; }
 .the-draw { width: 60px; height: 4px; bottom: 10px; left: 10px; }
 .the-stand { width: 4px; height: 100px; bottom: 10px; left: 38px; }
@@ -48,7 +47,6 @@ body, html {
 .the-hands { width: 26px; height: 3px; top: 28px; left: -1px; }
 .the-legs { width: 26px; height: 3px; top: 50px; left: -1px; }
 
-/* Logic Visibility */
 .hangman-draw.wrong-1 .the-draw { display: block; }
 .hangman-draw.wrong-2 .the-stand { display: block; }
 .hangman-draw.wrong-3 .the-hang { display: block; }
@@ -57,9 +55,12 @@ body, html {
 .hangman-draw.wrong-6 .the-hands { display: block; }
 .hangman-draw.wrong-7 .the-legs { display: block; }
 
-/* Animations */
+/* Animations & Confetti */
 .shake { animation: shakeAnim 0.4s ease-in-out; }
 @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } }
+
+.confetti-piece { position: absolute; width: 8px; height: 8px; top: -10px; z-index: 2000; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
 
 .popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
 .popup-content { background: white; padding: 20px; border-radius: 15px; text-align: center; border: 4px solid var(--accent-red); max-width: 90%; }

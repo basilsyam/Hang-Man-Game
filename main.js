@@ -4,18 +4,15 @@ let wrongAttempts = 0;
 const maxAttempts = 7;
 let score = 0;
 let highScore = localStorage.getItem("hangmanHighScore") || 0;
-let hintsUsed = 0; // عداد التلميحات للكلمة الواحدة
+let hintsUsed = 0;
 
-// تحديث عرض الـ High Score عند التحميل
 document.getElementById("high-score").textContent = highScore;
 
-// تعريف عناصر الصوت
 const correctSnd = document.getElementById("sound-correct");
 const wrongSnd = document.getElementById("sound-wrong");
 const winSnd = document.getElementById("sound-win");
 const loseSnd = document.getElementById("sound-lose");
 
-// عناصر DOM
 const categorySelect = document.getElementById("category-select");
 const lettersContainer = document.querySelector(".letters");
 const hintDisplay = document.getElementById("hint-display");
@@ -27,38 +24,26 @@ const hintBtn = document.getElementById("get-hint");
 const gamePopup = document.getElementById("game-popup");
 const scoreDisplay = document.getElementById("current-score");
 const highScoreDisplay = document.getElementById("high-score");
-const alertPopup = document.getElementById("alert-popup");
-const closeAlert = document.getElementById("close-alert");
 
-// إغلاق نافذة الترحيب وتفعيل الأصوات
+// Start Game Logic
 startBtn.onclick = () => { 
     welcomePopup.style.display = "none";
     [correctSnd, wrongSnd, winSnd, loseSnd].forEach(snd => {
-        snd.muted = true;
-        snd.play().then(() => {
-            snd.pause();
-            snd.currentTime = 0;
-            snd.muted = false;
-        }).catch(e => console.log("Audio ready"));
+        snd.muted = true; snd.play().then(() => { snd.pause(); snd.currentTime = 0; snd.muted = false; }).catch(() => {});
     });
 };
 
-closeAlert.onclick = () => { alertPopup.style.display = "none"; };
-
-// تحميل البيانات
 fetch('words.json')
     .then(res => res.json())
     .then(data => {
         allWordsData = data;
         Object.keys(data).forEach(cat => {
             let opt = document.createElement("option");
-            opt.value = cat;
-            opt.textContent = cat.toUpperCase();
+            opt.value = cat; opt.textContent = cat.toUpperCase();
             categorySelect.appendChild(opt);
         });
     });
 
-// إنشاء الكيبورد
 "abcdefghijklmnopqrstuvwxyz".split("").forEach(l => {
     let span = document.createElement("span");
     span.textContent = l.toUpperCase();
@@ -66,28 +51,20 @@ fetch('words.json')
     lettersContainer.appendChild(span);
 });
 
-// دالة بدء اللعبة
 const startGame = () => {
     const selected = categorySelect.value;
     if (!selected) return;
-
-    hintsUsed = 0; // تصفير التلميحات
+    hintsUsed = 0;
     skipBtn.style.display = "inline-block";
     hintBtn.style.display = "inline-block";
-    
     const pool = allWordsData[selected];
     const item = pool[Math.floor(Math.random() * pool.length)];
-    
     chosenWord = item.word.toLowerCase();
     wrongAttempts = 0;
-    
-    // تصفير الرسم تماماً
     drawElement.className = "hangman-draw"; 
-    
     document.querySelectorAll(".letter-box").forEach(b => b.classList.remove("clicked"));
     document.getElementById("category-name").textContent = selected.toUpperCase();
     hintDisplay.innerHTML = `<span class="hint-text">HINT: ${item.hint.toUpperCase()}</span>`;
-    
     const guessContainer = document.querySelector(".letters-guess");
     guessContainer.innerHTML = "";
     [...chosenWord].forEach(l => {
@@ -95,133 +72,99 @@ const startGame = () => {
         if (l === " ") s.className = "has-space";
         guessContainer.appendChild(s);
     });
-
     gamePopup.style.display = "none";
-    alertPopup.style.display = "none";
     lettersContainer.style.pointerEvents = "auto";
 };
 
 categorySelect.onchange = startGame;
 skipBtn.onclick = () => { if (categorySelect.value) startGame(); };
 
-// منطق زر التلميح (مرتين فقط)
+// Hint Logic
 hintBtn.onclick = () => {
-    if (hintsUsed >= 2) {
-        alert("لقد استنفدت التلميحات المتاحة لهذه الكلمة!");
-        return;
-    }
-    if (score < 30) {
-        alert("تحتاج إلى 30 نقطة على الأقل!");
-        return;
-    }
-
+    if (hintsUsed >= 2 || score < 30) return alert(score < 30 ? "Need 30 pts!" : "No more hints!");
     const guessSpans = document.querySelectorAll(".letters-guess span");
-    let hiddenIndices = [];
-    [...chosenWord].forEach((char, index) => {
-        if (guessSpans[index].textContent === "" && char !== " ") {
-            hiddenIndices.push(index);
-        }
-    });
-
+    let hiddenIndices = [...chosenWord].map((c, i) => guessSpans[i].textContent === "" && c !== " " ? i : null).filter(x => x !== null);
     if (hiddenIndices.length > 0) {
-        score -= 30;
-        hintsUsed++;
-        updateScores();
-        let randomIndex = hiddenIndices[Math.floor(Math.random() * hiddenIndices.length)];
-        let revealedChar = chosenWord[randomIndex];
-        [...chosenWord].forEach((l, i) => {
-            if (l === revealedChar) guessSpans[i].textContent = revealedChar;
-        });
-        document.querySelectorAll(".letter-box").forEach(box => {
-            if (box.textContent.toLowerCase() === revealedChar) box.classList.add("clicked");
-        });
-        const isWin = [...guessSpans].every(s => s.textContent !== "" || s.classList.contains("has-space"));
-        if (isWin) { launchConfetti(); showEnd(true); }
+        score -= 30; hintsUsed++; updateScores();
+        let revealedChar = chosenWord[hiddenIndices[Math.floor(Math.random() * hiddenIndices.length)]];
+        [...chosenWord].forEach((l, i) => { if (l === revealedChar) guessSpans[i].textContent = revealedChar; });
+        document.querySelectorAll(".letter-box").forEach(box => { if (box.textContent.toLowerCase() === revealedChar) box.classList.add("clicked"); });
+        checkWin(true);
     }
 };
 
-// منطق الضغط على الحروف
+// Main Click Logic
 document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("letter-box")) {
-        if (!chosenWord) { alertPopup.style.display = "flex"; return; }
-        if (e.target.classList.contains("clicked")) return;
-
+    if (e.target.classList.contains("letter-box") && chosenWord && !e.target.classList.contains("clicked")) {
         e.target.classList.add("clicked");
         let char = e.target.textContent.toLowerCase();
         let found = false;
         const guessSpans = document.querySelectorAll(".letters-guess span");
-        
-        [...chosenWord].forEach((l, i) => {
-            if (l === char) {
-                found = true;
-                guessSpans[i].textContent = char;
-            }
-        });
-
+        [...chosenWord].forEach((l, i) => { if (l === char) { found = true; guessSpans[i].textContent = char; }});
         if (found) {
-            correctSnd.currentTime = 0;
-            correctSnd.play().catch(() => {});
-            const isWin = [...guessSpans].every(s => s.textContent !== "" || s.classList.contains("has-space"));
-            if (isWin) {
-                score += 100;
-                updateScores();
-                launchConfetti(); 
-                showEnd(true);
-            }
+            correctSnd.currentTime = 0; correctSnd.play().catch(() => {});
+            checkWin();
         } else {
-            drawElement.classList.remove("shake");
-            void drawElement.offsetWidth; 
-            drawElement.classList.add("shake");
-
-            wrongSnd.volume = 0.2;
-            wrongSnd.currentTime = 0;
-            wrongSnd.play().catch(() => {});
-
-            wrongAttempts++;
-            drawElement.classList.add(`wrong-${wrongAttempts}`);
-            if (wrongAttempts === maxAttempts) {
-                score = 0;
-                updateScores();
-                showEnd(false);
-            }
+            handleWrong();
         }
     }
 });
 
-function updateScores() {
-    scoreDisplay.textContent = score;
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem("hangmanHighScore", highScore);
-        highScoreDisplay.textContent = highScore;
+// Keyboard Support
+document.addEventListener("keydown", (e) => {
+    if (gamePopup.style.display === "flex") return;
+    const key = e.key.toLowerCase();
+    if (/^[a-z]$/.test(key)) {
+        const btn = [...document.querySelectorAll(".letter-box")].find(b => b.textContent.toLowerCase() === key && !b.classList.contains("clicked"));
+        if (btn) btn.click();
+    }
+});
+
+function handleWrong() {
+    drawElement.classList.remove("shake"); void drawElement.offsetWidth; drawElement.classList.add("shake");
+    wrongSnd.currentTime = 0; wrongSnd.play().catch(() => {});
+    wrongAttempts++;
+    drawElement.classList.add(`wrong-${wrongAttempts}`);
+    if (wrongAttempts === maxAttempts) { score = 0; updateScores(); showEnd(false); }
+}
+
+function checkWin(fromHint = false) {
+    const guessSpans = document.querySelectorAll(".letters-guess span");
+    if ([...guessSpans].every(s => s.textContent !== "" || s.classList.contains("has-space"))) {
+        if (!fromHint) score += 100;
+        updateScores(); launchConfetti(); showEnd(true);
     }
 }
 
-function launchConfetti() {
-    const colors = ['#6a8bf6', '#f45e56', '#ffd700', '#2ecc71', '#9b59b6'];
-    for (let i = 0; i < 50; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti-piece';
-        confetti.style.left = Math.random() * 100 + 'vw';
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
-        document.body.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 3000);
-    }
+function updateScores() {
+    scoreDisplay.textContent = score;
+    if (score > highScore) { highScore = score; localStorage.setItem("hangmanHighScore", highScore); highScoreDisplay.textContent = highScore; }
 }
 
 function showEnd(win) {
     lettersContainer.style.pointerEvents = "none";
-    if (win) {
-        winSnd.currentTime = 0; winSnd.play().catch(() => {});
-        document.getElementById("popup-title").textContent = "VICTORY! 🎉";
-        document.getElementById("popup-message").textContent = `Great Job! Your Score: ${score}`;
-    } else {
-        loseSnd.currentTime = 0; loseSnd.play().catch(() => {});
-        document.getElementById("popup-title").textContent = "GAME OVER! 💀";
-        document.getElementById("popup-message").textContent = `THE WORD WAS: ${chosenWord.toUpperCase()}`;
-    }
+    const msgs = win ? ["VICTORY! 🎉", "GENIUS! 🔥"] : ["GAME OVER! 💀", "SO CLOSE! 🤏"];
+    document.getElementById("popup-title").textContent = msgs[Math.floor(Math.random()*msgs.length)];
+    if (!win) {
+        loseSnd.play();
+        const spans = document.querySelectorAll(".letters-guess span");
+        [...chosenWord].forEach((c, i) => { if (spans[i].textContent === "" && c !== " ") { spans[i].textContent = c; spans[i].style.color = "var(--accent-red)"; }});
+    } else { winSnd.play(); }
+    document.getElementById("popup-message").textContent = win ? `Score: ${score}` : `Word: ${chosenWord.toUpperCase()}`;
     gamePopup.style.display = "flex";
 }
 
+function launchConfetti() {
+    for (let i = 0; i < 40; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.backgroundColor = ['#6a8bf6','#f45e56','#ffd700'][Math.floor(Math.random()*3)];
+        c.style.animationDuration = (Math.random()*2+1)+'s';
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 3000);
+    }
+}
+
 document.getElementById("play-again").onclick = startGame;
+document.getElementById("close-alert").onclick = () => document.getElementById("alert-popup").style.display = "none";

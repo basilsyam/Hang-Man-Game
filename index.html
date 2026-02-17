@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hangman Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="./image/لقطة شاشة 2026-02-15 124143.png" type="image/x-icon">
 </head>
 <body>
     <div class="main-wrapper">
@@ -61,22 +60,18 @@
         <div class="popup-content">
             <h2 style="color: var(--primary-blue);">WELCOME TO HANGMAN PRO! 👋</h2>
             <div style="text-align: right; margin: 20px 0; line-height: 1.6; color: #333; direction: rtl;">
-                <p>✅ اختر **المجال** (Field) من القائمة للبدء.</p>
-                <p>✅ خمن الحروف قبل اكتمال **رسم الرجل**.</p>
-                <p>✅ يمكنك **تغيير الكلمة** فوراً إذا كانت صعبة.</p>
+                <p>✅ اختر **المجال** للبدء.</p>
+                <p>✅ خمن الحروف قبل اكتمال **الرسم**.</p>
+                <p>✅ تلميح (Hint) يخصم 30 نقطة.</p>
             </div>
-            <div class="popup-buttons">
-                <button id="start-btn">START PLAYING 🚀</button>
-            </div>
+            <button id="start-btn">START PLAYING 🚀</button>
         </div>
     </div>
 
     <div id="alert-popup" class="popup-overlay">
-        <div class="popup-content" style="max-width: 300px; border-width: 3px;">
-            <p style="font-weight: bold; color: var(--accent-red); margin-bottom: 10px;">⚠️ Please choose a field first!</p>
-            <div class="popup-buttons">
-                <button id="close-alert" style="padding: 5px 15px; font-size: 14px;">OK</button>
-            </div>
+        <div class="popup-content">
+            <p style="font-weight: bold; color: var(--accent-red);">⚠️ Please choose a field first!</p>
+            <button id="close-alert">OK</button>
         </div>
     </div>
 
@@ -84,9 +79,7 @@
         <div class="popup-content">
             <h2 id="popup-title"></h2>
             <p id="popup-message"></p>
-            <div class="popup-buttons">
-                <button id="play-again">PLAY AGAIN</button>
-            </div>
+            <button id="play-again">PLAY AGAIN</button>
         </div>
     </div>
 
